@@ -22,6 +22,7 @@ package net.majorkernelpanic.streaming.video;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +32,8 @@ import net.majorkernelpanic.streaming.exceptions.StorageUnavailableException;
 import net.majorkernelpanic.streaming.hw.EncoderDebugger;
 import net.majorkernelpanic.streaming.mp4.MP4Config;
 import net.majorkernelpanic.streaming.rtp.H264Packetizer;
+import net.majorkernelpanic.streaming.video.source.VideoSource;
+
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences.Editor;
 import android.graphics.ImageFormat;
@@ -57,21 +60,13 @@ public class H264Stream extends VideoStream {
 
 	/**
 	 * Constructs the H.264 stream.
-	 * Uses CAMERA_FACING_BACK by default.
-	 */
-	public H264Stream() {
-		this(CameraInfo.CAMERA_FACING_BACK);
-	}
-
-	/**
-	 * Constructs the H.264 stream.
-	 * @param cameraId Can be either CameraInfo.CAMERA_FACING_BACK or CameraInfo.CAMERA_FACING_FRONT
+	 * @param videoSource
 	 * @throws IOException
 	 */
-	public H264Stream(int cameraId) {
-		super(cameraId);
+	public H264Stream(VideoSource videoSource) {
+		super(videoSource);
 		mMimeType = "video/avc";
-		mCameraImageFormat = ImageFormat.NV21;
+		videoSource.setImageFormat(ImageFormat.NV21);
 		mVideoEncoder = MediaRecorder.VideoEncoder.H264;
 		mPacketizer = new H264Packetizer();
 	}
@@ -122,8 +117,8 @@ public class H264Stream extends VideoStream {
 
 	@SuppressLint("NewApi")
 	private MP4Config testMediaCodecAPI() throws RuntimeException, IOException {
-		createCamera();
-		updateCamera();
+		mVideoSource.beforeTestMediaCodecApi();
+
 		try {
 			if (mQuality.resX>=640) {
 				// Using the MediaCodec API with the buffer method for high resolutions is too slow
@@ -156,7 +151,7 @@ public class H264Stream extends VideoStream {
 
 		final String TESTFILE = Environment.getExternalStorageDirectory().getPath()+"/spydroid-test.mp4";
 		
-		Log.i(TAG,"Testing H264 support... Test file saved at: "+TESTFILE);
+		Log.i(TAG, "Testing H264 support... Test file saved at: " + TESTFILE);
 
 		try {
 			File file = new File(TESTFILE);
@@ -164,42 +159,14 @@ public class H264Stream extends VideoStream {
 		} catch (IOException e) {
 			throw new StorageUnavailableException(e.getMessage());
 		}
-		
-		// Save flash state & set it to false so that led remains off while testing h264
-		boolean savedFlashState = mFlashEnabled;
-		mFlashEnabled = false;
 
-		boolean previewStarted = mPreviewStarted;
-		
-		boolean cameraOpen = mCamera!=null;
-		createCamera();
-
-		// Stops the preview if needed
-		if (mPreviewStarted) {
-			lockCamera();
-			try {
-				mCamera.stopPreview();
-			} catch (Exception e) {}
-			mPreviewStarted = false;
-		}
-
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
-		unlockCamera();
+		Map<String, Object> state = mVideoSource.beforeTestMediaRecorderApi();
 
 		try {
 			
 			mMediaRecorder = new MediaRecorder();
-			mMediaRecorder.setCamera(mCamera);
-			mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-			mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+			mVideoSource.initializeMediaRecorder(mMediaRecorder);
 			mMediaRecorder.setVideoEncoder(mVideoEncoder);
-			mMediaRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
 			mMediaRecorder.setVideoSize(mRequestedQuality.resX,mRequestedQuality.resY);
 			mMediaRecorder.setVideoFrameRate(mRequestedQuality.framerate);
 			mMediaRecorder.setVideoEncodingBitRate((int)(mRequestedQuality.bitrate*0.8));
@@ -245,16 +212,7 @@ public class H264Stream extends VideoStream {
 			} catch (Exception e) {}
 			mMediaRecorder.release();
 			mMediaRecorder = null;
-			lockCamera();
-			if (!cameraOpen) destroyCamera();
-			// Restore flash state
-			mFlashEnabled = savedFlashState;
-			if (previewStarted) {
-				// If the preview was started before the test, we try to restart it.
-				try {
-					startPreview();
-				} catch (Exception e) {}
-			}
+			mVideoSource.afterTestMediaRecorderApi(state);
 		}
 
 		// Retrieve SPS & PPS & ProfileId with MP4Config

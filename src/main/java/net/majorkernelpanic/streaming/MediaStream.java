@@ -62,7 +62,7 @@ public abstract class MediaStream implements Stream {
 	public static final byte PIPE_API_PFD = 0x02;
 	
 	/** Prefix that will be used for all shared preferences saved by libstreaming */
-	protected static final String PREF_PREFIX = "libstreaming-";
+	public static final String PREF_PREFIX = "libstreaming-";
 
 	/** The packetizer that will read the output of the camera and send RTP packets over the networked. */
 	protected AbstractPacketizer mPacketizer = null;
