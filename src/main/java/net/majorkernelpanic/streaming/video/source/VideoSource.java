@@ -25,6 +25,8 @@ public abstract class VideoSource {
 
     public abstract void initializeMediaRecorder(MediaRecorder mediaRecorder);
 
+    public abstract void afterMediaRecorder(MediaRecorder mediaRecorder);
+
     public abstract void beforeEncodeWithMediaCodecMethod1();
 
     public abstract void afterEncodeWithMediaCodecMethod1(final NV21Convertor convertor, final MediaCodec mediaCodec);
@@ -36,6 +38,10 @@ public abstract class VideoSource {
     public abstract void beforeTestMediaCodecApi();
 
     public abstract Map<String, Object> beforeTestMediaRecorderApi();
+
+    public abstract Map<String, Object> afterTestMediaRecorderApiPrepared(Map<String, Object> state, MediaRecorder mediaRecorder);
+
+    public abstract Map<String, Object> afterTestMediaRecorderApiStarted(Map<String, Object> state, MediaRecorder mediaRecorder);
 
     public abstract void afterTestMediaRecorderApi(Map<String, Object> state);
 
@@ -69,8 +75,8 @@ public abstract class VideoSource {
                 @Override
                 public void surfaceDestroyed(SurfaceHolder holder) {
                     mSurfaceReady = false;
-                    stopPreview();
-                    Log.d(TAG, "Surface destroyed !");
+                    mStream.stopPreview();
+                    Log.d(TAG, "Surface destroyed!");
                 }
                 @Override
                 public void surfaceCreated(SurfaceHolder holder) {
@@ -78,7 +84,7 @@ public abstract class VideoSource {
                 }
                 @Override
                 public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                    Log.d(TAG,"Surface Changed !");
+                    Log.d(TAG,"Surface Changed!");
                 }
             };
             mSurfaceView.getHolder().addCallback(mSurfaceHolderCallback);

@@ -71,9 +71,7 @@ public abstract class VideoStream extends MediaStream {
 	protected boolean mUpdated = false;
 	
 	protected String mMimeType;
-	protected String mEncoderName;
-	protected int mEncoderColorFormat;
-	protected int mMaxFps = 0;
+
 	protected VideoSource mVideoSource;
 
 	public VideoStream(VideoSource videoSource) {
@@ -237,6 +235,7 @@ public abstract class VideoStream extends MediaStream {
 			mMediaRecorder.prepare();
 			mMediaRecorder.start();
 
+			mVideoSource.afterMediaRecorder(mMediaRecorder);
 		} catch (Exception e) {
 			throw new ConfNotSupportedException(e.getMessage());
 		}

@@ -530,7 +530,7 @@ public class EncoderDebugger {
 		mEncoder = MediaCodec.createByCodecName(mEncoderName);
 		MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, mWidth, mHeight);
 		mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, BITRATE);
-		mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAMERATE);	
+		mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAMERATE);
 		mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, mEncoderColorFormat);
 		mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
 		mEncoder.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);

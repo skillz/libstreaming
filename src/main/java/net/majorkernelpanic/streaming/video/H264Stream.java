@@ -155,7 +155,13 @@ public class H264Stream extends VideoStream {
 
 		try {
 			File file = new File(TESTFILE);
-			file.createNewFile();
+			if (!file.createNewFile()) {
+				if (file.delete()) {
+					if (!file.createNewFile()) throw new StorageUnavailableException("Could not create a test file");
+				} else {
+					throw new StorageUnavailableException("Could not delete existing test file");
+				}
+			}
 		} catch (IOException e) {
 			throw new StorageUnavailableException(e.getMessage());
 		}
@@ -167,24 +173,24 @@ public class H264Stream extends VideoStream {
 			mMediaRecorder = new MediaRecorder();
 			mVideoSource.initializeMediaRecorder(mMediaRecorder);
 			mMediaRecorder.setVideoEncoder(mVideoEncoder);
-			mMediaRecorder.setVideoSize(mRequestedQuality.resX,mRequestedQuality.resY);
+			mMediaRecorder.setVideoSize(mRequestedQuality.resX, mRequestedQuality.resY);
 			mMediaRecorder.setVideoFrameRate(mRequestedQuality.framerate);
-			mMediaRecorder.setVideoEncodingBitRate((int)(mRequestedQuality.bitrate*0.8));
+			mMediaRecorder.setVideoEncodingBitRate((int) (mRequestedQuality.bitrate * 0.8));
 			mMediaRecorder.setOutputFile(TESTFILE);
 			mMediaRecorder.setMaxDuration(3000);
 			
 			// We wait a little and stop recording
 			mMediaRecorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
 				public void onInfo(MediaRecorder mr, int what, int extra) {
-					Log.d(TAG,"MediaRecorder callback called !");
-					if (what==MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
-						Log.d(TAG,"MediaRecorder: MAX_DURATION_REACHED");
-					} else if (what==MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
-						Log.d(TAG,"MediaRecorder: MAX_FILESIZE_REACHED");
-					} else if (what==MediaRecorder.MEDIA_RECORDER_INFO_UNKNOWN) {
-						Log.d(TAG,"MediaRecorder: INFO_UNKNOWN");
+					Log.d(TAG, "MediaRecorder callback called !");
+					if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+						Log.d(TAG, "MediaRecorder: MAX_DURATION_REACHED");
+					} else if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
+						Log.d(TAG, "MediaRecorder: MAX_FILESIZE_REACHED");
+					} else if (what == MediaRecorder.MEDIA_RECORDER_INFO_UNKNOWN) {
+						Log.d(TAG, "MediaRecorder: INFO_UNKNOWN");
 					} else {
-						Log.d(TAG,"WTF ?");
+						Log.d(TAG, "WTF ?");
 					}
 					mLock.release();
 				}
@@ -192,7 +198,12 @@ public class H264Stream extends VideoStream {
 
 			// Start recording
 			mMediaRecorder.prepare();
+
+			state = mVideoSource.afterTestMediaRecorderApiPrepared(state, mMediaRecorder);
+
 			mMediaRecorder.start();
+
+			state = mVideoSource.afterTestMediaRecorderApiStarted(state, mMediaRecorder);
 
 			if (mLock.tryAcquire(6,TimeUnit.SECONDS)) {
 				Log.d(TAG,"MediaRecorder callback was called :)");

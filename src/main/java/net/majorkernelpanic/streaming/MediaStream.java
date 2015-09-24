@@ -95,7 +95,7 @@ public abstract class MediaStream implements Stream {
 
 	protected MediaRecorder mMediaRecorder;
 	protected MediaCodec mMediaCodec;
-	
+
 	static {
 		// We determine whether or not the MediaCodec API should be used
 		try {

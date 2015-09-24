@@ -53,6 +53,10 @@ public class CameraVideoSource extends VideoSource {
     }
 
     @Override
+    public void afterMediaRecorder(MediaRecorder mediaRecorder) {
+    }
+
+    @Override
     public void beforeEncodeWithMediaCodecMethod1() {
         // Updates the parameters of the camera if needed
         createCamera();
@@ -91,7 +95,7 @@ public class CameraVideoSource extends VideoSource {
                     int bufferIndex = mediaCodec.dequeueInputBuffer(500000);
                     if (bufferIndex>=0) {
                         inputBuffers[bufferIndex].clear();
-                        if (data == null) Log.e(TAG,"Symptom of the \"Callback buffer was to small\" problem...");
+                        if (data == null) Log.e(TAG,"Symptom of the \"Callback buffer was too small\" problem...");
                         else convertor.convert(data, inputBuffers[bufferIndex]);
                         mediaCodec.queueInputBuffer(bufferIndex, 0, inputBuffers[bufferIndex].position(), now, 0);
                     } else {
@@ -177,6 +181,16 @@ public class CameraVideoSource extends VideoSource {
     }
 
     @Override
+    public Map<String, Object> afterTestMediaRecorderApiPrepared(Map<String, Object> state, MediaRecorder mediaRecorder) {
+        return state;
+    }
+
+    @Override
+    public Map<String, Object> afterTestMediaRecorderApiStarted(Map<String, Object> state, MediaRecorder mediaRecorder) {
+        return state;
+    }
+
+    @Override
     public void afterTestMediaRecorderApi(Map<String, Object> state) {
         Boolean cameraOpen = (Boolean)state.get("cameraOpen");
 
@@ -190,7 +204,7 @@ public class CameraVideoSource extends VideoSource {
         if ((Boolean)state.get("previewStarted")) {
             // If the preview was started before the test, we try to restart it.
             try {
-                startPreview();
+                mStream.startPreview();
             } catch (Exception e) {}
         }
     }
