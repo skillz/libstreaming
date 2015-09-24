@@ -45,7 +45,7 @@ public class ActivityVideoSource extends VideoSource {
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 
         // After setVideoEncoder?
-        mediaRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
+        if (mSurfaceView != null) mediaRecorder.setPreviewDisplay(mSurfaceView.getHolder().getSurface());
     }
 
     // Requires API 21
