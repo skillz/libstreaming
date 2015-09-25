@@ -66,7 +66,7 @@ public class EncoderDebugger {
 	private static final boolean DEBUG = false;
 	
 	/** Set this to true to see more logs. */
-	private static final boolean VERBOSE = false;
+	private static final boolean VERBOSE = true;
 
 	/** Will be incremented every time this test is modified. */
 	private static final int VERSION = 3;
@@ -530,7 +530,7 @@ public class EncoderDebugger {
 		mEncoder = MediaCodec.createByCodecName(mEncoderName);
 		MediaFormat mediaFormat = MediaFormat.createVideoFormat(MIME_TYPE, mWidth, mHeight);
 		mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, BITRATE);
-		mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAMERATE);	
+		mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, FRAMERATE);
 		mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, mEncoderColorFormat);
 		mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
 		mEncoder.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
