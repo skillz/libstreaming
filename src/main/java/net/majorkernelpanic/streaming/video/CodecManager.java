@@ -37,7 +37,8 @@ public class CodecManager {
 	
 	public static final int[] SUPPORTED_COLOR_FORMATS = {
 		MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar,
-		MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar
+		MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar,
+		MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface
 	};
 
 	/**

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.media.MediaRecorder;
 import android.os.Looper;
 import android.util.Log;
@@ -137,6 +138,16 @@ public class CameraVideoSource extends VideoSource {
         Surface surface = mediaCodec.createInputSurface();
         // removed cast to majorkernelpanic SurfaceView, problem????
         mSurfaceView.addMediaCodecSurface(surface);
+    }
+
+    @Override
+    public void initializeMediaFormat(MediaFormat mediaFormat) {
+
+    }
+
+    @Override
+    public void beforeMediaCodecStart(MediaCodec mediaCodec) {
+
     }
 
     @Override

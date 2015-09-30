@@ -1,6 +1,7 @@
 package net.majorkernelpanic.streaming.video.source;
 
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.media.MediaRecorder;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -34,6 +35,10 @@ public abstract class VideoSource {
     public abstract void beforeEncodeWithMediaCodecMethod2();
 
     public abstract void afterEncodeWithMediaCodecMethod2(MediaCodec mediaCodec);
+
+    public abstract void initializeMediaFormat(MediaFormat mediaFormat);
+
+    public abstract void beforeMediaCodecStart(MediaCodec mediaCodec);
 
     public abstract void beforeTestMediaCodecApi();
 

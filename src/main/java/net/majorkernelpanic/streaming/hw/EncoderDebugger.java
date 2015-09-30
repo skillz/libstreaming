@@ -201,6 +201,8 @@ public class EncoderDebugger {
 		// Tries available encoders
 		for (int i=0;i<encoders.length;i++) {
 			for (int j=0;j<encoders[i].formats.length;j++) {
+				if (encoders[i].formats[j] != MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface) continue;
+
 				reset();
 				
 				mEncoderName = encoders[i].name;
