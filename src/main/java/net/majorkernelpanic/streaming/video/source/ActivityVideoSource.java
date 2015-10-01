@@ -64,7 +64,6 @@ public class ActivityVideoSource extends VideoSource {
 
     @Override
     public void afterEncodeWithMediaCodecMethod1(NV21Convertor convertor, MediaCodec mediaCodec) {
-        //afterEncodeWithMediaCodec(mediaCodec);
     }
 
     @Override
@@ -74,14 +73,17 @@ public class ActivityVideoSource extends VideoSource {
 
     @Override
     public void afterEncodeWithMediaCodecMethod2(MediaCodec mediaCodec) {
-        //afterEncodeWithMediaCodec(mediaCodec);
     }
 
+    // requires API 16
+    @SuppressLint("NewApi")
     @Override
     public void initializeMediaFormat(MediaFormat mediaFormat) {
         mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
     }
 
+    // requires API 18
+    @SuppressLint("NewApi")
     @Override
     public void beforeMediaCodecStart(MediaCodec mediaCodec) {
         mSurface = mediaCodec.createInputSurface();
@@ -126,6 +128,7 @@ public class ActivityVideoSource extends VideoSource {
 
     @Override
     public void afterTestMediaRecorderApi(Map<String, Object> state) {
+        if (mSurface != null) mSurface.release();
         mSurface = null;
     }
 
@@ -174,6 +177,8 @@ public class ActivityVideoSource extends VideoSource {
 
     @Override
     public void afterStop() {
+        if (mSurface != null) mSurface.release();
+        mSurface = null;
     }
 
     @Override
@@ -184,12 +189,6 @@ public class ActivityVideoSource extends VideoSource {
     @Override
     public void stopPreview() {
 
-    }
-
-    // requires API 18
-    @SuppressLint("NewApi")
-    private void afterEncodeWithMediaCodec(MediaCodec mediaCodec) {
-        mSurface = mediaCodec.createInputSurface();
     }
 
     private void startSurface() {
