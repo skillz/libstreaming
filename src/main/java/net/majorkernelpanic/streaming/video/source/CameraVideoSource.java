@@ -272,6 +272,11 @@ public class CameraVideoSource extends VideoSource {
         mCameraOpenedManually = false;
     }
 
+    @Override
+    public boolean isColorFormatValid(int format) {
+        return true;
+    }
+
     /**
      * Sets the camera that will be used to capture video.
      * You can call this method at any time and changes will take effect next time you start the stream.

@@ -191,6 +191,11 @@ public class ActivityVideoSource extends VideoSource {
 
     }
 
+    @Override
+    public boolean isColorFormatValid(int format) {
+        return format == MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
+    }
+
     private void startSurface() {
         mStream.setUpdated(false);
 

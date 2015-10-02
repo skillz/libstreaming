@@ -284,7 +284,7 @@ public abstract class VideoStream extends MediaStream {
 
 		mVideoSource.beforeEncodeWithMediaCodecMethod1();
 
-		EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
+		EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY, mVideoSource);
 		final NV21Convertor convertor = debugger.getNV21Convertor();
 
 		mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
@@ -319,7 +319,7 @@ public abstract class VideoStream extends MediaStream {
 
 		mVideoSource.beforeEncodeWithMediaCodecMethod2();
 
-		EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
+		EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY, mVideoSource);
 
 		mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
 		MediaFormat mediaFormat = MediaFormat.createVideoFormat("video/avc", mQuality.resX, mQuality.resY);

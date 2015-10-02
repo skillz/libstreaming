@@ -26,6 +26,8 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 
 import net.majorkernelpanic.streaming.hw.CodecManager.Codec;
+import net.majorkernelpanic.streaming.video.source.VideoSource;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -93,26 +95,27 @@ public class EncoderDebugger {
 	private SharedPreferences mPreferences;
 	private byte[][] mVideo, mDecodedVideo;
 	private String mB64PPS, mB64SPS;
+	private VideoSource mVideoSource;
 
-	public synchronized static void asyncDebug(final Context context, final int width, final int height) {
+	public synchronized static void asyncDebug(final Context context, final int width, final int height, final VideoSource videoSource) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-					debug(prefs, width, height);
+					debug(prefs, width, height, videoSource);
 				} catch (Exception e) {}
 			}
 		}).start();
 	}
 	
-	public synchronized static EncoderDebugger debug(Context context, int width, int height) {
+	public synchronized static EncoderDebugger debug(Context context, int width, int height, VideoSource videoSource) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		return debug(prefs, width, height);
+		return debug(prefs, width, height, videoSource);
 	}
 
-	public synchronized static EncoderDebugger debug(SharedPreferences prefs, int width, int height) {
-		EncoderDebugger debugger = new EncoderDebugger(prefs, width, height);
+	public synchronized static EncoderDebugger debug(SharedPreferences prefs, int width, int height, VideoSource videoSource) {
+		EncoderDebugger debugger = new EncoderDebugger(prefs, width, height, videoSource);
 		debugger.debug();
 		return debugger;
 	}
@@ -143,11 +146,12 @@ public class EncoderDebugger {
 		return mErrorLog;
 	}
 
-	private EncoderDebugger(SharedPreferences prefs, int width, int height) {
+	private EncoderDebugger(SharedPreferences prefs, int width, int height, VideoSource videoSource) {
 		mPreferences = prefs;
 		mWidth = width;
 		mHeight = height;
 		mSize = width*height;
+		mVideoSource = videoSource;
 		reset();
 	}
 
@@ -201,7 +205,7 @@ public class EncoderDebugger {
 		// Tries available encoders
 		for (int i=0;i<encoders.length;i++) {
 			for (int j=0;j<encoders[i].formats.length;j++) {
-				if (encoders[i].formats[j] != MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface) continue;
+				//if (encoders[i].formats[j] != MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface) continue;
 
 				reset();
 				

@@ -62,6 +62,8 @@ public abstract class VideoSource {
 
     public abstract void stopPreview();
 
+    public abstract boolean isColorFormatValid(int format);
+
     public void setStream(VideoStream stream) {
         mStream = stream;
     }
