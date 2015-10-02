@@ -23,9 +23,6 @@ package net.majorkernelpanic.streaming.video;
 import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import net.majorkernelpanic.streaming.MediaStream;
 import net.majorkernelpanic.streaming.Stream;
@@ -40,20 +37,12 @@ import net.majorkernelpanic.streaming.video.source.VideoSource;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.hardware.Camera;
-import android.hardware.Camera.CameraInfo;
-import android.hardware.Camera.Parameters;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.media.MediaRecorder;
-import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceHolder.Callback;
 
 /** 
  * Don't use this class directly.
@@ -295,7 +284,7 @@ public abstract class VideoStream extends MediaStream {
 
 		mVideoSource.beforeEncodeWithMediaCodecMethod1();
 
-		EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
+		EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY, mVideoSource);
 		final NV21Convertor convertor = debugger.getNV21Convertor();
 
 		mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
@@ -304,7 +293,9 @@ public abstract class VideoStream extends MediaStream {
 		mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mQuality.framerate);	
 		mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,debugger.getEncoderColorFormat());
 		mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+		mVideoSource.initializeMediaFormat(mediaFormat);
 		mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+		mVideoSource.beforeMediaCodecStart(mMediaCodec);
 		mMediaCodec.start();
 
 		mVideoSource.afterEncodeWithMediaCodecMethod1(convertor, mMediaCodec);
@@ -328,7 +319,7 @@ public abstract class VideoStream extends MediaStream {
 
 		mVideoSource.beforeEncodeWithMediaCodecMethod2();
 
-		EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY);
+		EncoderDebugger debugger = EncoderDebugger.debug(mSettings, mQuality.resX, mQuality.resY, mVideoSource);
 
 		mMediaCodec = MediaCodec.createByCodecName(debugger.getEncoderName());
 		MediaFormat mediaFormat = MediaFormat.createVideoFormat("video/avc", mQuality.resX, mQuality.resY);
@@ -336,7 +327,9 @@ public abstract class VideoStream extends MediaStream {
 		mediaFormat.setInteger(MediaFormat.KEY_FRAME_RATE, mQuality.framerate);	
 		mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
 		mediaFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1);
+		mVideoSource.initializeMediaFormat(mediaFormat);
 		mMediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+		mVideoSource.beforeMediaCodecStart(mMediaCodec);
 		mVideoSource.afterEncodeWithMediaCodecMethod2(mMediaCodec);
 		mMediaCodec.start();
 

@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.view.Surface;
@@ -62,7 +64,6 @@ public class ActivityVideoSource extends VideoSource {
 
     @Override
     public void afterEncodeWithMediaCodecMethod1(NV21Convertor convertor, MediaCodec mediaCodec) {
-        afterEncodeWithMediaCodec(mediaCodec);
     }
 
     @Override
@@ -72,7 +73,20 @@ public class ActivityVideoSource extends VideoSource {
 
     @Override
     public void afterEncodeWithMediaCodecMethod2(MediaCodec mediaCodec) {
-        afterEncodeWithMediaCodec(mediaCodec);
+    }
+
+    // requires API 16
+    @SuppressLint("NewApi")
+    @Override
+    public void initializeMediaFormat(MediaFormat mediaFormat) {
+        mediaFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+    }
+
+    // requires API 18
+    @SuppressLint("NewApi")
+    @Override
+    public void beforeMediaCodecStart(MediaCodec mediaCodec) {
+        mSurface = mediaCodec.createInputSurface();
     }
 
     @Override
@@ -114,6 +128,7 @@ public class ActivityVideoSource extends VideoSource {
 
     @Override
     public void afterTestMediaRecorderApi(Map<String, Object> state) {
+        if (mSurface != null) mSurface.release();
         mSurface = null;
     }
 
@@ -137,11 +152,10 @@ public class ActivityVideoSource extends VideoSource {
                         View view = mActivity.findViewById(android.R.id.content);
                         view.setDrawingCacheEnabled(true);
                         Bitmap bitmap = view.getDrawingCache();
-                        canvas.drawBitmap(bitmap, null, new Rect(0, 0, mStream.getVideoQuality().resX, mStream.getVideoQuality().resY), null);
-
-                        //Paint paint = new Paint();
-                        //paint.setColor(Color.rgb(random.nextInt(255), random.nextInt(255), random.nextInt(255)));
-                        //canvas.drawLine(random.nextFloat() * mStream.getVideoQuality().resX, random.nextFloat() * mStream.getVideoQuality().resY, random.nextFloat() * mStream.getVideoQuality().resX, random.nextFloat() * mStream.getVideoQuality().resY, paint);
+                        Paint paint = new Paint();
+                        paint.setAntiAlias(true);
+                        paint.setFilterBitmap(true);
+                        canvas.drawBitmap(bitmap, null, new Rect(0, 0, mStream.getVideoQuality().resX, mStream.getVideoQuality().resY), paint);
                     }
                 } catch (Exception e) {
                     // TODO: handle exception
@@ -163,6 +177,8 @@ public class ActivityVideoSource extends VideoSource {
 
     @Override
     public void afterStop() {
+        if (mSurface != null) mSurface.release();
+        mSurface = null;
     }
 
     @Override
@@ -175,10 +191,9 @@ public class ActivityVideoSource extends VideoSource {
 
     }
 
-    // requires API 18
-    @SuppressLint("NewApi")
-    private void afterEncodeWithMediaCodec(MediaCodec mediaCodec) {
-        mSurface = mediaCodec.createInputSurface();
+    @Override
+    public boolean isColorFormatValid(int format) {
+        return format == MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
     }
 
     private void startSurface() {

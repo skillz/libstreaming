@@ -1,6 +1,7 @@
 package net.majorkernelpanic.streaming.video.source;
 
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.media.MediaRecorder;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -35,6 +36,10 @@ public abstract class VideoSource {
 
     public abstract void afterEncodeWithMediaCodecMethod2(MediaCodec mediaCodec);
 
+    public abstract void initializeMediaFormat(MediaFormat mediaFormat);
+
+    public abstract void beforeMediaCodecStart(MediaCodec mediaCodec);
+
     public abstract void beforeTestMediaCodecApi();
 
     public abstract Map<String, Object> beforeTestMediaRecorderApi();
@@ -56,6 +61,8 @@ public abstract class VideoSource {
     public abstract void startPreview();
 
     public abstract void stopPreview();
+
+    public abstract boolean isColorFormatValid(int format);
 
     public void setStream(VideoStream stream) {
         mStream = stream;

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.media.MediaCodec;
+import android.media.MediaFormat;
 import android.media.MediaRecorder;
 import android.os.Looper;
 import android.util.Log;
@@ -140,6 +141,16 @@ public class CameraVideoSource extends VideoSource {
     }
 
     @Override
+    public void initializeMediaFormat(MediaFormat mediaFormat) {
+
+    }
+
+    @Override
+    public void beforeMediaCodecStart(MediaCodec mediaCodec) {
+
+    }
+
+    @Override
     public void beforeTestMediaCodecApi() {
         createCamera();
         updateCamera();
@@ -259,6 +270,11 @@ public class CameraVideoSource extends VideoSource {
     @Override
     public void stopPreview() {
         mCameraOpenedManually = false;
+    }
+
+    @Override
+    public boolean isColorFormatValid(int format) {
+        return true;
     }
 
     /**
