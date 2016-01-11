@@ -2,13 +2,16 @@ package net.majorkernelpanic.streaming.video.source;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 public class ProjectionVideoSource extends ActivityVideoSource {
 
@@ -17,7 +20,7 @@ public class ProjectionVideoSource extends ActivityVideoSource {
     VirtualDisplay mVirtualDisplay;
     int mResultCode;
     Intent mResultData;
-    DisplayMetrics mMetrics;
+    private ActivityCallbacks mActivityCallbacks;
 
     // requires API 21
     @SuppressLint("NewApi")
@@ -29,8 +32,9 @@ public class ProjectionVideoSource extends ActivityVideoSource {
 
         mMediaProjectionManager = (MediaProjectionManager) activity.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
 
-        mMetrics = new DisplayMetrics();
-        activity.getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
+        mActivityCallbacks = new ActivityCallbacks();
+
+        activity.getApplication().registerActivityLifecycleCallbacks(mActivityCallbacks);
     }
 
     // requires API 21
@@ -48,15 +52,6 @@ public class ProjectionVideoSource extends ActivityVideoSource {
                 null, // callback
                 null  // handler
         );
-
-        mRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (mRunnable != null) mHandler.postDelayed(this, mRefreshRate);
-            }
-        };
-
-        mHandler.postDelayed(mRunnable, mRefreshRate);
     }
 
     // requires API 21
@@ -73,6 +68,48 @@ public class ProjectionVideoSource extends ActivityVideoSource {
         if (mMediaProjection != null) {
             mMediaProjection.stop();
             mMediaProjection = null;
+        }
+
+        if (mActivityCallbacks != null) {
+            mActivity.getApplication().unregisterActivityLifecycleCallbacks(mActivityCallbacks);
+            mActivityCallbacks = null;
+        }
+    }
+
+    class ActivityCallbacks implements Application.ActivityLifecycleCallbacks {
+        @Override
+        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+        }
+
+        @Override
+        public void onActivityStarted(Activity activity) {
+            Log.i("SKILLZ", "Started");
+        }
+
+        @Override
+        public void onActivityResumed(Activity activity) {
+            Log.i("SKILLZ", "Resumed");
+        }
+
+        @Override
+        public void onActivityPaused(Activity activity) {
+            Log.i("SKILLZ", "Paused");
+        }
+
+        @Override
+        public void onActivityStopped(Activity activity) {
+            Log.i("SKILLZ", "Stopped");
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+        }
+
+        @Override
+        public void onActivityDestroyed(Activity activity) {
+
         }
     }
 }
