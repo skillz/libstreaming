@@ -13,14 +13,17 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import net.majorkernelpanic.streaming.Session;
+
 public class ProjectionVideoSource extends ActivityVideoSource {
 
-    MediaProjectionManager mMediaProjectionManager;
-    MediaProjection mMediaProjection;
-    VirtualDisplay mVirtualDisplay;
-    int mResultCode;
-    Intent mResultData;
+    private MediaProjectionManager mMediaProjectionManager;
+    private MediaProjection mMediaProjection;
+    private VirtualDisplay mVirtualDisplay;
+    private int mResultCode;
+    private Intent mResultData;
     private ActivityCallbacks mActivityCallbacks;
+    private Session mSession = null;
 
     // requires API 21
     @SuppressLint("NewApi")
@@ -74,6 +77,12 @@ public class ProjectionVideoSource extends ActivityVideoSource {
             mActivity.getApplication().unregisterActivityLifecycleCallbacks(mActivityCallbacks);
             mActivityCallbacks = null;
         }
+
+        mSession = null;
+    }
+
+    public void setSession(Session session) {
+        this.mSession = session;
     }
 
     class ActivityCallbacks implements Application.ActivityLifecycleCallbacks {
@@ -95,6 +104,10 @@ public class ProjectionVideoSource extends ActivityVideoSource {
         @Override
         public void onActivityPaused(Activity activity) {
             Log.i("SKILLZ", "Paused");
+
+            if (activity == mActivity && mSession != null && mSession.isStreaming()) {
+                mSession.syncStop();
+            }
         }
 
         @Override
